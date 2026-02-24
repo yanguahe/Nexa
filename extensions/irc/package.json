@@ -1,0 +1,14 @@
+{
+  "name": "@nexa/irc",
+  "version": "2026.2.14",
+  "description": "Nexa IRC channel plugin",
+  "type": "module",
+  "devDependencies": {
+    "nexa": "workspace:*"
+  },
+  "nexa": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

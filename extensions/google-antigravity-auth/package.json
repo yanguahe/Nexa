@@ -1,0 +1,15 @@
+{
+  "name": "@nexa/google-antigravity-auth",
+  "version": "2026.2.14",
+  "private": true,
+  "description": "Nexa Google Antigravity OAuth provider plugin",
+  "type": "module",
+  "devDependencies": {
+    "nexa": "workspace:*"
+  },
+  "nexa": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

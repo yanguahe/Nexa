@@ -1,0 +1,29 @@
+{
+  "name": "@nexa/mattermost",
+  "version": "2026.2.14",
+  "private": true,
+  "description": "Nexa Mattermost channel plugin",
+  "type": "module",
+  "devDependencies": {
+    "nexa": "workspace:*"
+  },
+  "nexa": {
+    "extensions": [
+      "./index.ts"
+    ],
+    "channel": {
+      "id": "mattermost",
+      "label": "Mattermost",
+      "selectionLabel": "Mattermost (plugin)",
+      "docsPath": "/channels/mattermost",
+      "docsLabel": "mattermost",
+      "blurb": "self-hosted Slack-style chat; install the plugin to enable.",
+      "order": 65
+    },
+    "install": {
+      "npmSpec": "@nexa/mattermost",
+      "localPath": "extensions/mattermost",
+      "defaultChoice": "npm"
+    }
+  }
+}

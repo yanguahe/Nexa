@@ -1,0 +1,15 @@
+{
+  "name": "@nexa/telegram",
+  "version": "2026.2.14",
+  "private": true,
+  "description": "Nexa Telegram channel plugin",
+  "type": "module",
+  "devDependencies": {
+    "nexa": "workspace:*"
+  },
+  "nexa": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}
