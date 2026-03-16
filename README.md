@@ -103,3 +103,18 @@ pnpm gateway:watch
 ```
 
 Note: `pnpm nexa ...` runs TypeScript directly (via `tsx`). `pnpm build` produces `dist/` for running via Node / the packaged `nexa` binary.
+
+### Building on Windows (PowerShell)
+
+`pnpm build` requires `bash`; on Windows use the PowerShell build script instead:
+
+```powershell
+# Full build (A2UI + core + Control UI)
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1
+
+# Skip A2UI bundle (safe when src/canvas-host/a2ui/ is unchanged)
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -SkipA2UI
+
+# Skip Control UI (web dashboard) build
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -SkipControlUI
+```
