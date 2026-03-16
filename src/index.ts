@@ -18,7 +18,7 @@ import {
 import { ensureBinary } from "./infra/binaries.js";
 import { loadDotEnv } from "./infra/dotenv.js";
 import { normalizeEnv } from "./infra/env.js";
-import { formatUncaughtError } from "./infra/errors.js";
+import { formatUncaughtError, isRecoverableChannelError } from "./infra/errors.js";
 import { isMainModule } from "./infra/is-main.js";
 import { ensureNexaCliOnPath } from "./infra/path-env.js";
 import {
@@ -83,6 +83,14 @@ if (isMain) {
 
   process.on("uncaughtException", (error) => {
     console.error("[nexa] Uncaught exception:", formatUncaughtError(error));
+
+    // Channel plugin WebSocket errors (e.g. heartbeat ping on a reconnecting
+    // socket) are non-critical — the connection manager will recover.
+    if (isRecoverableChannelError(error)) {
+      console.warn("[nexa] Recoverable channel error; continuing (connection manager will reconnect)");
+      return;
+    }
+
     process.exit(1);
   });
 

@@ -57,7 +57,7 @@ async function main() {
 
   const { assertSupportedRuntime } = await import("../infra/runtime-guard.js");
   assertSupportedRuntime();
-  const { formatUncaughtError } = await import("../infra/errors.js");
+  const { formatUncaughtError, isRecoverableChannelError } = await import("../infra/errors.js");
   const { installUnhandledRejectionHandler } = await import("../infra/unhandled-rejections.js");
 
   const { buildProgram } = await import("../cli/program.js");
@@ -67,6 +67,10 @@ async function main() {
 
   process.on("uncaughtException", (error) => {
     console.error("[nexa] Uncaught exception:", formatUncaughtError(error));
+    if (isRecoverableChannelError(error)) {
+      console.warn("[nexa] Recoverable channel error; continuing (connection manager will reconnect)");
+      return;
+    }
     process.exit(1);
   });
 

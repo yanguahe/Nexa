@@ -39,10 +39,17 @@ async function checkRelayReachable(port) {
 }
 
 async function load() {
-  const stored = await chrome.storage.local.get(['relayPort'])
+  const stored = await chrome.storage.local.get(['relayPort', 'autoAttach'])
   const port = clampPort(stored.relayPort)
   document.getElementById('port').value = String(port)
   updateRelayUrl(port)
+
+  // Auto-attach checkbox
+  const autoAttachEl = document.getElementById('auto-attach')
+  if (autoAttachEl) {
+    autoAttachEl.checked = stored.autoAttach === true
+  }
+
   await checkRelayReachable(port)
 }
 
@@ -55,5 +62,12 @@ async function save() {
   await checkRelayReachable(port)
 }
 
+async function toggleAutoAttach() {
+  const autoAttachEl = document.getElementById('auto-attach')
+  if (!autoAttachEl) return
+  await chrome.storage.local.set({ autoAttach: autoAttachEl.checked })
+}
+
 document.getElementById('save').addEventListener('click', () => void save())
+document.getElementById('auto-attach').addEventListener('change', () => void toggleAutoAttach())
 void load()

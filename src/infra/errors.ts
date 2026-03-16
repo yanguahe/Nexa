@@ -52,3 +52,30 @@ export function formatUncaughtError(err: unknown): string {
   }
   return formatErrorMessage(err);
 }
+
+/**
+ * Detect errors from channel plugin WebSocket internals that are safe to
+ * survive.  The canonical case is the dingtalk-stream SDK firing
+ * `WebSocket.ping()` on a socket whose readyState is still CONNECTING
+ * (a race between the heartbeat timer and reconnection).  These originate
+ * from a `setInterval` callback in plugin code, NOT from core logic,
+ * so the process state remains consistent.
+ */
+export function isRecoverableChannelError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+
+  const msg = err.message ?? "";
+  const stack = err.stack ?? "";
+
+  // ws library throws this when ping/send is called on a non-OPEN socket
+  if (!msg.includes("WebSocket is not open")) return false;
+
+  // Only recover when the throw originates from a plugin/extension, not core.
+  // Plugin stacks contain `.nexa/` (installed plugins) or `extensions/`.
+  if (/[/\\]\.nexa[/\\]|[/\\]extensions[/\\]/.test(stack)) return true;
+
+  // Also recover when the throw clearly comes from a timer (heartbeat race)
+  if (stack.includes("Timeout._onTimeout")) return true;
+
+  return false;
+}

@@ -2,7 +2,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { loadDotEnv } from "../infra/dotenv.js";
 import { normalizeEnv } from "../infra/env.js";
-import { formatUncaughtError } from "../infra/errors.js";
+import { formatUncaughtError, isRecoverableChannelError } from "../infra/errors.js";
 import { isMainModule } from "../infra/is-main.js";
 import { ensureNexaCliOnPath } from "../infra/path-env.js";
 import { assertSupportedRuntime } from "../infra/runtime-guard.js";
@@ -88,6 +88,10 @@ export async function runCli(argv: string[] = process.argv) {
 
   process.on("uncaughtException", (error) => {
     console.error("[nexa] Uncaught exception:", formatUncaughtError(error));
+    if (isRecoverableChannelError(error)) {
+      console.warn("[nexa] Recoverable channel error; continuing (connection manager will reconnect)");
+      return;
+    }
     process.exit(1);
   });
 

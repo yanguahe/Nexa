@@ -432,6 +432,64 @@ function onDebuggerDetach(source, reason) {
 
 chrome.action.onClicked.addListener(() => void connectOrToggleForActiveTab())
 
+// ── Auto-attach ──────────────────────────────────────────────────────
+
+/** @type {boolean} */
+let autoAttachEnabled = false
+
+// Load persisted setting on startup
+chrome.storage.local.get(['autoAttach']).then((stored) => {
+  autoAttachEnabled = stored.autoAttach === true
+})
+
+// React to setting changes (from options page or programmatic)
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.autoAttach) {
+    autoAttachEnabled = changes.autoAttach.newValue === true
+  }
+})
+
+/** Set of tabIds currently being auto-attached (prevent double attach) */
+const autoAttachInFlight = new Set()
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  // Only act when auto-attach is on, page finished loading, and tab has a real URL
+  if (!autoAttachEnabled) return
+  if (changeInfo.status !== 'complete') return
+  if (!tab.url) return
+
+  // Skip internal/extension pages
+  const url = tab.url
+  if (
+    url.startsWith('chrome://') ||
+    url.startsWith('chrome-extension://') ||
+    url.startsWith('edge://') ||
+    url.startsWith('about:') ||
+    url.startsWith('devtools://')
+  ) {
+    return
+  }
+
+  // Already attached or in-flight
+  if (tabs.has(tabId)) return
+  if (autoAttachInFlight.has(tabId)) return
+
+  autoAttachInFlight.add(tabId)
+
+  void (async () => {
+    try {
+      await ensureRelayConnection()
+      await attachTab(tabId)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.warn(`[auto-attach] tab ${tabId} failed: ${message}`)
+      // Don't show error badge for auto-attach failures to avoid noise
+    } finally {
+      autoAttachInFlight.delete(tabId)
+    }
+  })()
+})
+
 chrome.runtime.onInstalled.addListener(() => {
   // Useful: first-time instructions.
   void chrome.runtime.openOptionsPage()

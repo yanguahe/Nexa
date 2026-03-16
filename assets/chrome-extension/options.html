@@ -176,6 +176,17 @@
         </div>
 
         <div class="card">
+          <h2>Auto-attach</h2>
+          <div class="row">
+            <label class="toggle-row" for="auto-attach" style="display:flex;align-items:center;gap:8px;margin:0;font-size:13px;color:canvasText;cursor:pointer;">
+              <input type="checkbox" id="auto-attach" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;" />
+              Automatically attach to new tabs when they finish loading
+            </label>
+          </div>
+          <p>When enabled, every new page load will be automatically attached to the relay — no need to click the toolbar button each time. Internal pages (<code>chrome://</code>, <code>about:</code>, etc.) are skipped.</p>
+        </div>
+
+        <div class="card">
           <h2>Relay port</h2>
           <label for="port">Port</label>
           <div class="row">
